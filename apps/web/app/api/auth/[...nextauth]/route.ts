@@ -1,6 +1,21 @@
+import { axiosInstance } from "@/lib/axios";
 import { NextAuthOptions } from "next-auth";
+import { JWT } from "next-auth/jwt";
 import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
+
+const refreshToken = async (token: JWT): Promise<JWT> => {
+  const response = await axiosInstance.get("/auth/refresh", {
+    headers: {
+      Authorization: `Refresh ${token.backendTokens.refreshToken}`,
+    },
+  });
+  return {
+    ...token,
+    backendTokens: response.data,
+  };
+};
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -26,7 +41,6 @@ export const authOptions: NextAuthOptions = {
           },
         });
         if (res.status === 401) {
-          console.log(res.statusText);
           return null;
         }
         const user = await res.json();
@@ -36,9 +50,10 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      console.log({ token, user });
       if (user) return { ...token, ...user };
-      return token;
+      if (new Date().getTime() < token.backendTokens.expiresIn) return token;
+
+      return await refreshToken(token);
     },
     async session({ token, session }) {
       session.user = token.user;

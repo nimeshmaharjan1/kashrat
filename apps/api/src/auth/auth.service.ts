@@ -11,6 +11,8 @@ type UserPayloadType = {
   };
 };
 
+const EXPIRE_TIME = 20 * 1000;
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -27,11 +29,12 @@ export class AuthService {
     };
     return {
       user,
-      token: {
+      backendTokens: {
         accessToken: await this.jwtService.signAsync(payload, {
-          expiresIn: '1h',
+          expiresIn: '20s',
           secret: process.env.JWT_SECRET_TOKEN,
         }),
+        expiresIn: new Date().setTime(new Date().getTime() + EXPIRE_TIME),
         refreshToken: await this.jwtService.signAsync(payload, {
           expiresIn: '7d',
           secret: process.env.JWT_REFRESH_TOKEN,
@@ -58,13 +61,14 @@ export class AuthService {
     };
     return {
       accessToken: await this.jwtService.signAsync(payload, {
-        expiresIn: '1h',
+        expiresIn: '20s',
         secret: process.env.JWT_SECRET_TOKEN,
       }),
       refreshToken: await this.jwtService.signAsync(payload, {
         expiresIn: '7d',
         secret: process.env.JWT_REFRESH_TOKEN,
       }),
+      expiresIn: new Date().setTime(new Date().getTime() + EXPIRE_TIME),
     };
   }
 }

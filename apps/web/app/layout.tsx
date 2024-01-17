@@ -1,13 +1,20 @@
-import { cn } from "@ui/lib/utils";
 import { ThemeProvider } from "@ui/components/theme-provider";
 import { ModeToggle } from "@ui/components/theme-toggle";
+import { cn } from "@ui/lib/utils";
 import "@ui/styles/globals.css";
 
+import { Toaster } from "@ui/components/toaster";
+import { Metadata } from "next";
 import { Public_Sans as FontSans } from "next/font/google";
-import SessionProvider from "./providers/session-provider";
+import RootProviders from "./providers";
 export const fontSans = FontSans({
   subsets: ["latin"],
 });
+
+export const metadata: Metadata = {
+  title: "Kashrat",
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -21,14 +28,15 @@ export default function RootLayout({
           fontSans.className
         )}
       >
-        <SessionProvider>
+        <RootProviders>
           <ThemeProvider attribute="class">
             <header className="flex justify-end container py-4">
               <ModeToggle></ModeToggle>
             </header>
             <main className="pb-6">{children}</main>
+            <Toaster></Toaster>
           </ThemeProvider>
-        </SessionProvider>
+        </RootProviders>
       </body>
     </html>
   );

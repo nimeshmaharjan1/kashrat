@@ -15,7 +15,11 @@ export class UsersService {
     });
 
     if (user)
-      throw new ConflictException('An user with this email already exists.');
+      throw new ConflictException({
+        entites: ['email'],
+        message: 'An user with this email already exists.',
+        statusCode: 409,
+      });
 
     const newUser = await this.databaseService.user.create({
       data: {
